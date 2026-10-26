@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Teams from "./pages/Teams";
 import TeamDetail from "./pages/TeamDetail";
 import ProjectDetail from "./pages/ProjectDetail";
+import Dashboard from "./pages/Dashboard";
 
 export default function App() {
   return (
@@ -33,6 +34,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <ProjectDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
           </ProtectedRoute>
         }
       />

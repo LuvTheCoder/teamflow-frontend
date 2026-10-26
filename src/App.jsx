@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Teams from "./pages/Teams";
 import TeamDetail from "./pages/TeamDetail";
+import ProjectDetail from "./pages/ProjectDetail";
 
 export default function App() {
   return (
@@ -24,6 +25,14 @@ export default function App() {
         element={
           <ProtectedRoute>
             <TeamDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projects/:projectId"
+        element={
+          <ProtectedRoute>
+            <ProjectDetail />
           </ProtectedRoute>
         }
       />

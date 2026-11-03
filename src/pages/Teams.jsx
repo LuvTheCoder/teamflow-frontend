@@ -60,114 +60,177 @@ export default function Teams() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-5">
+    <div className="min-h-screen bg-[#FAFBFC] text-[#172B4D] antialiased">
       <Navbar />
 
-      {error && <p className="mb-4 rounded-md bg-red-100 p-3 text-sm text-red-700">{error}</p>}
-
-      {/* Pending invitations (only shown if there are any) */}
-      {invitations.length > 0 && (
-        <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4">
-          <h2 className="mb-3 font-semibold text-gray-800">Team invitations</h2>
-
-          {invitations.map((invitation) => (
-            <div
-              key={invitation.id}
-              className="mb-2 flex flex-wrap items-center justify-between gap-2 rounded-md bg-white p-3"
-            >
-              <p className="text-sm text-gray-700">
-                <strong>{invitation.inviter?.name}</strong> invited you to join{" "}
-                <strong>{invitation.teams?.name}</strong>
-              </p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => answerInvitation(invitation.id, "accept")}
-                  className="rounded-md bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-700"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => answerInvitation(invitation.id, "decline")}
-                  className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Decline
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Create team form */}
-        <div className="h-fit rounded-lg bg-white p-5 shadow-sm md:col-span-1">
-          <h2 className="mb-3 font-semibold text-gray-800">Create a team</h2>
-
-          <form onSubmit={handleCreateTeam} className="flex flex-col gap-3">
-            <input
-              type="text"
-              placeholder="Team name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="rounded-md border border-gray-300 p-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
-            <textarea
-              placeholder="Description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              className="rounded-md border border-gray-300 p-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
-            <button
-              type="submit"
-              disabled={creating}
-              className="rounded-md bg-blue-600 p-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
-            >
-              {creating ? "Creating..." : "Create team"}
-            </button>
-          </form>
-        </div>
-
-        {/* Team list */}
-        <div className="md:col-span-2">
-          <h2 className="mb-3 font-semibold text-gray-800">Your teams</h2>
-
-          {loading && <p className="text-gray-500">Loading...</p>}
-
-          {!loading && teams.length === 0 && (
-            <p className="rounded-lg bg-white p-5 text-gray-500 shadow-sm">
-              You are not in any team yet. Create one to get started.
-            </p>
-          )}
-
-          <div className="flex flex-col gap-3">
-            {teams.map((team) => (
-              <Link
-                key={team.id}
-                to={`/teams/${team.id}`}
-                className="block rounded-lg bg-white p-4 shadow-sm hover:shadow-md"
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-800">{team.name}</h3>
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      team.role === "OWNER"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {team.role}
-                  </span>
-                </div>
-                {team.description && (
-                  <p className="mt-1 text-sm text-gray-500">{team.description}</p>
-                )}
-              </Link>
-            ))}
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        {/* Header */}
+        <div className="mb-8 border-b border-[#DFE1E6] pb-5">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#5E6C84]">
+            <span>Workspaces</span>
+            <span>/</span>
+            <span className="text-[#0052CC]">Teams</span>
           </div>
+          <h1 className="mt-1 text-2xl font-bold text-[#172B4D]">Teams</h1>
         </div>
-      </div>
+
+        {/* Error notification */}
+        {error && (
+          <div className="mb-6 rounded border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* Invitations section */}
+        {invitations.length > 0 && (
+          <section className="mb-8 rounded-md border border-[#FFAB00] bg-[#FFFAE6] p-4">
+            <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#172B4D]">
+              Pending Invitations ({invitations.length})
+            </h2>
+
+            <div className="flex flex-col gap-2">
+              {invitations.map((invitation) => (
+                <div
+                  key={invitation.id}
+                  className="flex flex-col gap-3 rounded border border-[#DFE1E6] bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <p className="text-sm text-[#172B4D]">
+                    <span className="font-semibold">{invitation.inviter?.name}</span> invited you to join{" "}
+                    <span className="font-semibold text-[#0052CC]">{invitation.teams?.name}</span>
+                  </p>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => answerInvitation(invitation.id, "accept")}
+                      className="rounded bg-[#0052CC] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0747A6]"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => answerInvitation(invitation.id, "decline")}
+                      className="rounded border border-[#DFE1E6] bg-white px-3 py-1.5 text-xs font-semibold text-[#42526E] hover:bg-[#EBECF0]"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Main Grid Layout */}
+        <div className="grid gap-8 md:grid-cols-3">
+          {/* Create Team Form */}
+          <section className="h-fit rounded-md border border-[#DFE1E6] bg-white p-5 md:col-span-1">
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-[#5E6C84]">
+              Create Team
+            </h2>
+
+            <form onSubmit={handleCreateTeam} className="flex flex-col gap-4">
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[#172B4D]">
+                  Team Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Engineering"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full rounded border border-[#DFE1E6] bg-[#FAFBFC] p-2 text-sm text-[#172B4D] outline-none hover:bg-[#EBECF0] focus:border-[#4C9AFF] focus:bg-white"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-semibold text-[#172B4D]">
+                  Description
+                </label>
+                <textarea
+                  placeholder="Add a team description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={3}
+                  className="w-full resize-none rounded border border-[#DFE1E6] bg-[#FAFBFC] p-2 text-sm text-[#172B4D] outline-none hover:bg-[#EBECF0] focus:border-[#4C9AFF] focus:bg-white"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={creating}
+                className="mt-1 rounded bg-[#0052CC] py-2 text-xs font-semibold text-white hover:bg-[#0747A6] disabled:bg-[#0052CC]/50"
+              >
+                {creating ? "Creating..." : "Create Team"}
+              </button>
+            </form>
+          </section>
+
+          {/* Teams List */}
+          <section className="md:col-span-2">
+            <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-[#5E6C84]">
+              Your Teams ({teams.length})
+            </h2>
+
+            {loading && (
+              <p className="text-xs text-[#5E6C84]">Loading teams...</p>
+            )}
+
+            {!loading && teams.length === 0 && (
+              <div className="rounded-md border border-[#DFE1E6] bg-white p-8 text-center text-sm text-[#5E6C84]">
+                You are not in any teams yet. Create one to get started.
+              </div>
+            )}
+
+            <div className="flex flex-col gap-2">
+              {teams.map((team) => (
+                <Link
+                  key={team.id}
+                  to={`/teams/${team.id}`}
+                  className="group flex flex-col justify-between rounded-md border border-[#DFE1E6] bg-white p-4 transition-colors hover:border-[#4C9AFF] hover:bg-[#FAFBFC] sm:flex-row sm:items-center"
+                >
+                  <div className="flex items-start gap-3">
+                    {/* Minimalist Flat Icon Badge */}
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-[#DEEBFF] text-xs font-bold text-[#0052CC]">
+                      {team.name.slice(0, 2).toUpperCase()}
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-[#172B4D] group-hover:text-[#0052CC]">
+                        {team.name}
+                      </h3>
+                      {team.description ? (
+                        <p className="mt-0.5 text-xs text-[#5E6C84]">
+                          {team.description}
+                        </p>
+                      ) : (
+                        <p className="mt-0.5 text-xs italic text-[#A5ADBA]">
+                          No description
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-3 sm:mt-0">
+                    <span
+                      className={`rounded px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
+                        team.role === "OWNER"
+                          ? "bg-[#DEEBFF] text-[#0052CC]"
+                          : "bg-[#EBECF0] text-[#42526E]"
+                      }`}
+                    >
+                      {team.role}
+                    </span>
+
+                    <span className="text-xs text-[#5E6C84] group-hover:text-[#0052CC]">
+                      &rarr;
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 }

@@ -12,10 +12,15 @@ export function removeToken() {
   localStorage.removeItem("token");
 }
 
-// Automatically resolve API URL: if accessed from a phone/LAN IP, replace "localhost" with that IP
+// Automatically resolve API URL: if on localhost/LAN in dev, replace localhost with current host
 export function getApiBaseUrl() {
   const envUrl = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
-  if (typeof window !== "undefined" && window.location.hostname && window.location.hostname !== "localhost") {
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname &&
+    window.location.hostname !== "localhost" &&
+    envUrl.includes("localhost")
+  ) {
     return envUrl.replace("localhost", window.location.hostname);
   }
   return envUrl;

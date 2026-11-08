@@ -12,13 +12,21 @@ export function removeToken() {
   localStorage.removeItem("token");
 }
 
-// One axios instance with the base URL already set
-const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
-});
+// Automatically resolve API URL: if accessed from a phone/LAN IP, replace "localhost" with that IP
+export function getApiBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
+  if (typeof window !== "undefined" && window.location.hostname && window.location.hostname !== "localhost") {
+    return envUrl.replace("localhost", window.location.hostname);
+  }
+  return envUrl;
+}
 
-// Runs before every request: adds the token if we have one
+// One axios instance with the base URL dynamically set per request
+const instance = axios.create();
+
+// Runs before every request: sets baseURL and adds the token if we have one
 instance.interceptors.request.use((config) => {
+  config.baseURL = getApiBaseUrl();
   const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

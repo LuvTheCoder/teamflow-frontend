@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { api, getToken, saveToken, removeToken } from "../api/api";
+import { disconnectSocket } from "../api/socket";
 
 const AuthContext = createContext(null);
 
@@ -42,6 +43,7 @@ export function AuthProvider({ children }) {
 
   function logout() {
     removeToken();
+    disconnectSocket(); // Drop the socket so the next login gets a fresh authed connection
     setUser(null);
   }
 

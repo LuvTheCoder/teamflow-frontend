@@ -1,1 +1,96 @@
 @import "tailwindcss";
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+body {
+  display: block;
+  margin: 0;
+}
+
+#root {
+  width: 100%;
+}
+
+/* Headline font (loaded in index.html), with safe fallbacks */
+.font-display {
+  font-family: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Keyboard focus that stays visible on white, blue, and lime backgrounds */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid #0e1330;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #cbff4d;
+}
+
+/* Hero headline entrance */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fade-up {
+  animation: fade-up 0.7s ease both;
+}
+
+/* Hero conveyor: cards look like the board cards, and turn lime in the Done lane */
+.flow-card {
+  background: #ffffff;
+  color: #0e1330;
+  border: 2px solid #0e1330;
+  box-shadow: 3px 3px 0 #0e1330;
+  animation: drift 24s linear infinite, tint 24s linear infinite;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-240px);
+  }
+  to {
+    transform: translateX(100vw);
+  }
+}
+
+@keyframes tint {
+  0%,
+  79% {
+    background: #ffffff;
+  }
+  83%,
+  100% {
+    background: #cbff4d;
+  }
+}
+
+/* Hide the default arrow on FAQ items (we draw our own +) */
+summary::-webkit-details-marker {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .fade-up {
+    animation: none;
+  }
+  .flow-card {
+    animation: none;
+    transform: translateX(8vw);
+  }
+  /* Show only 3 cards so they don't stack on top of each other */
+  .flow-card:nth-of-type(n + 5) {
+    display: none;
+  }
+}

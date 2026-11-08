@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../api/api";
 
-// Used for both creating (task is null) and editing (task is the task object)
-export default function TaskModal({ projectId, task, projectMembers, onClose, onSaved }) {
+// Used for creating (task is null) and editing (task is the task object)
+export default function TaskModal({
+  projectId,
+  task,
+  defaultStatus,
+  projectMembers,
+  onClose,
+  onSaved,
+}) {
   const isEditing = Boolean(task);
 
   const [title, setTitle] = useState(task ? task.title : "");
@@ -12,6 +19,16 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
   const [assignedTo, setAssignedTo] = useState(task?.assigned_to || "");
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Escape closes the popup
+  useEffect(() => {
+    function onKey(event) {
+      if (event.key === "Escape") onClose();
+    }
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -29,11 +46,12 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
           assignedTo: assignedTo || null,
         });
       } else {
-        // undefined fields are not sent, so the backend uses its defaults
+        // The new task starts in the column where "+ Add task" was clicked
         await api(`/projects/${projectId}/tasks`, "POST", {
           title,
           description: description || undefined,
           priority,
+          status: defaultStatus || undefined,
           dueDate: dueDate || undefined,
           assignedTo: assignedTo || undefined,
         });
@@ -47,24 +65,26 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
   }
 
   const inputClass =
-    "rounded-md border border-gray-300 p-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200";
+    "w-full rounded-lg border-2 border-[#0E1330]/20 bg-white p-2.5 text-sm text-[#0E1330] outline-none focus:border-[#2A3BFF]";
 
   return (
-    // Clicking the dark background closes the popup
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#0E1330]/60 px-4"
     >
-      {/* stopPropagation: clicks inside the white box should not close it */}
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg"
+        role="dialog"
+        aria-modal="true"
+        className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl border-2 border-[#0E1330] bg-white p-6 shadow-[8px_8px_0_#0E1330]"
       >
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">
+        <h2 className="font-display mb-4 text-2xl font-extrabold text-[#0E1330]">
           {isEditing ? "Edit task" : "New task"}
         </h2>
 
-        {error && <p className="mb-3 rounded-md bg-red-100 p-3 text-sm text-red-700">{error}</p>}
+        {error && (
+          <p className="mb-3 rounded-lg bg-red-100 p-3 text-sm font-medium text-red-700">{error}</p>
+        )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input
@@ -73,6 +93,7 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
+            autoFocus
             className={inputClass}
           />
 
@@ -86,7 +107,7 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Priority</label>
+              <label className="text-xs font-semibold text-slate-500">Priority</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value)}
@@ -99,7 +120,7 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-gray-500">Due date</label>
+              <label className="text-xs font-semibold text-slate-500">Due date</label>
               <input
                 type="date"
                 value={dueDate}
@@ -110,7 +131,7 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-gray-500">Assign to</label>
+            <label className="text-xs font-semibold text-slate-500">Assign to</label>
             <select
               value={assignedTo}
               onChange={(e) => setAssignedTo(e.target.value)}
@@ -129,14 +150,14 @@ export default function TaskModal({ projectId, task, projectMembers, onClose, on
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="rounded-full border-2 border-[#0E1330]/20 px-5 py-2 text-sm font-semibold text-[#0E1330] hover:bg-slate-100"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-300"
+              className="rounded-full bg-[#2A3BFF] px-5 py-2 text-sm font-bold text-white hover:bg-[#1f2ed6] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Saving..." : isEditing ? "Save changes" : "Create task"}
             </button>

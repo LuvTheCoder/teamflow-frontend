@@ -1,12 +1,27 @@
 import { io } from "socket.io-client";
-import { getToken } from "./api";
+import { getToken, getApiBaseUrl } from "./api";
 
-// The socket server is the same server as the API, just without "/api" at the end
-const SOCKET_URL = import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "");
+// Resolves the socket URL: same server as the API, without "/api" at the end
+function getSocketUrl() {
+  return getApiBaseUrl().replace(/\/api\/?$/, "");
+}
 
-// Creates a new connection. The token is read again on every reconnect
-export function createSocket() {
-  return io(SOCKET_URL, {
-    auth: (callback) => callback({ token: getToken() }),
-  });
+// Singleton socket — one persistent connection for the whole app lifetime.
+let socket = null;
+
+export function getSocket() {
+  if (!socket) {
+    socket = io(getSocketUrl(), {
+      auth: (callback) => callback({ token: getToken() }),
+    });
+  }
+  return socket;
+}
+
+// Call this on logout so the next login gets a fresh authenticated connection.
+export function disconnectSocket() {
+  if (socket) {
+    socket.disconnect();
+    socket = null;
+  }
 }

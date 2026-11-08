@@ -3,11 +3,15 @@ import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { api } from "../api/api";
 
+const BLUE = "bg-[#2A3BFF]";
+const INK = "text-[#0E1330]";
+
 export default function Teams() {
   const [teams, setTeams] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -47,7 +51,6 @@ export default function Teams() {
     setCreating(false);
   }
 
-  // action is "accept" or "decline"
   async function answerInvitation(invitationId, action) {
     setError("");
 
@@ -59,56 +62,98 @@ export default function Teams() {
     }
   }
 
+  // Filter teams based on search query
+  const filteredTeams = teams.filter(
+    (team) =>
+      team.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (team.description && team.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const ownedTeamsCount = teams.filter((t) => t.role === "OWNER").length;
+
   return (
-    <div className="min-h-screen bg-[#FAFBFC] text-[#172B4D] antialiased">
+    <div className="min-h-screen bg-[#F4F6FF] pb-24 overflow-x-clip">
       <Navbar />
 
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        {/* Header */}
-        <div className="mb-8 border-b border-[#DFE1E6] pb-5">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#5E6C84]">
-            <span>Workspaces</span>
-            <span>/</span>
-            <span className="text-[#0052CC]">Teams</span>
+      <main className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
+        {/* Hero Section */}
+        <div className="relative mb-8 rounded-3xl border-2 border-[#0E1330] bg-[#2A3BFF] p-6 sm:p-8 text-white shadow-[8px_8px_0_#0E1330]">
+          <div className="grid gap-6 md:grid-cols-12 md:items-center">
+            <div className="md:col-span-8">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md border border-white/20 bg-[#CBFF4D] px-3 py-1 font-display text-xs font-extrabold text-[#0E1330]">
+                  ORGANIZATION HUB
+                </span>
+                {invitations.length > 0 && (
+                  <span className="rounded-md border border-white/20 bg-rose-400 px-2.5 py-1 font-display text-xs font-extrabold text-[#0E1330] animate-bounce">
+                    {invitations.length} Pending Invites
+                  </span>
+                )}
+              </div>
+              <h1 className="font-display mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                Workspaces & Teams
+              </h1>
+              <p className="mt-2 max-w-xl text-base font-semibold text-blue-100">
+                Collaborate with teammates, switch contexts, and keep your tasks aligned under dedicated workspaces.
+              </p>
+            </div>
+
+            {/* Quick Metrics Badge Grid */}
+            <div className="grid grid-cols-2 gap-3 md:col-span-4">
+              <div className="rounded-2xl border-2 border-[#0E1330] bg-white p-4 text-[#0E1330] shadow-[3px_3px_0_#0E1330]">
+                <p className="text-[11px] font-extrabold uppercase text-slate-500">Total Teams</p>
+                <p className="font-display text-3xl font-extrabold text-[#2A3BFF]">{teams.length}</p>
+              </div>
+              <div className="rounded-2xl border-2 border-[#0E1330] bg-[#CBFF4D] p-4 text-[#0E1330] shadow-[3px_3px_0_#0E1330]">
+                <p className="text-[11px] font-extrabold uppercase text-[#0E1330]/70">Owned by You</p>
+                <p className="font-display text-3xl font-extrabold text-[#0E1330]">{ownedTeamsCount}</p>
+              </div>
+            </div>
           </div>
-          <h1 className="mt-1 text-2xl font-bold text-[#172B4D]">Teams</h1>
         </div>
 
         {/* Error notification */}
         {error && (
-          <div className="mb-6 rounded border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700">
-            {error}
+          <div className="mb-6 rounded-2xl border-2 border-[#0E1330] bg-rose-200 p-4 font-bold text-rose-900 shadow-[4px_4px_0_#0E1330]">
+            🚨 {error}
           </div>
         )}
 
-        {/* Invitations section */}
+        {/* Pending Invitations Section */}
         {invitations.length > 0 && (
-          <section className="mb-8 rounded-md border border-[#FFAB00] bg-[#FFFAE6] p-4">
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-[#172B4D]">
-              Pending Invitations ({invitations.length})
-            </h2>
+          <section className="mb-8 rounded-2xl border-2 border-[#0E1330] bg-[#CBFF4D] p-6 shadow-[8px_8px_0_#0E1330]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-lg font-extrabold uppercase tracking-wider text-[#0E1330] flex items-center gap-2">
+                ⚡ Pending Invitations ({invitations.length})
+              </h2>
+            </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {invitations.map((invitation) => (
                 <div
                   key={invitation.id}
-                  className="flex flex-col gap-3 rounded border border-[#DFE1E6] bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col justify-between rounded-xl border-2 border-[#0E1330] bg-white p-4 shadow-[4px_4px_0_#0E1330]"
                 >
-                  <p className="text-sm text-[#172B4D]">
-                    <span className="font-semibold">{invitation.inviter?.name}</span> invited you to join{" "}
-                    <span className="font-semibold text-[#0052CC]">{invitation.teams?.name}</span>
-                  </p>
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase">Invited By</p>
+                    <p className="font-display text-base font-extrabold text-[#2A3BFF]">
+                      {invitation.inviter?.name}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold text-[#0E1330]">
+                      To join <span className="underline decoration-[#CBFF4D] decoration-4">{invitation.teams?.name}</span>
+                    </p>
+                  </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="mt-4 flex items-center gap-2 pt-2 border-t border-slate-100">
                     <button
                       onClick={() => answerInvitation(invitation.id, "accept")}
-                      className="rounded bg-[#0052CC] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0747A6]"
+                      className="flex-1 rounded-lg border-2 border-[#0E1330] bg-[#2A3BFF] py-2 text-xs font-extrabold text-white shadow-[2px_2px_0_#0E1330] hover:bg-[#1f2ed6] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                     >
                       Accept
                     </button>
                     <button
                       onClick={() => answerInvitation(invitation.id, "decline")}
-                      className="rounded border border-[#DFE1E6] bg-white px-3 py-1.5 text-xs font-semibold text-[#42526E] hover:bg-[#EBECF0]"
+                      className="flex-1 rounded-lg border-2 border-[#0E1330] bg-white py-2 text-xs font-extrabold text-slate-700 shadow-[2px_2px_0_#0E1330] hover:bg-slate-100 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                     >
                       Decline
                     </button>
@@ -119,110 +164,151 @@ export default function Teams() {
           </section>
         )}
 
-        {/* Main Grid Layout */}
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Create Team Form */}
-          <section className="h-fit rounded-md border border-[#DFE1E6] bg-white p-5 md:col-span-1">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-[#5E6C84]">
-              Create Team
-            </h2>
-
-            <form onSubmit={handleCreateTeam} className="flex flex-col gap-4">
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-[#172B4D]">
-                  Team Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Engineering"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full rounded border border-[#DFE1E6] bg-[#FAFBFC] p-2 text-sm text-[#172B4D] outline-none hover:bg-[#EBECF0] focus:border-[#4C9AFF] focus:bg-white"
-                />
+        {/* Main 2-Column Split Layout */}
+        <div className="grid gap-8 lg:grid-cols-12 items-start">
+          {/* Left Side: Create Team Form (Sticky Panel) */}
+          <section className="lg:col-span-4 lg:sticky lg:top-8">
+            <div className="rounded-2xl border-2 border-[#0E1330] bg-white p-6 shadow-[8px_8px_0_#0E1330]">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display text-lg font-extrabold uppercase tracking-wider text-[#0E1330]">
+                  Create Workspace
+                </h2>
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#CBFF4D] border border-[#0E1330] text-xs font-bold">
+                  +
+                </span>
               </div>
 
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-[#172B4D]">
-                  Description
-                </label>
-                <textarea
-                  placeholder="Add a team description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  className="w-full resize-none rounded border border-[#DFE1E6] bg-[#FAFBFC] p-2 text-sm text-[#172B4D] outline-none hover:bg-[#EBECF0] focus:border-[#4C9AFF] focus:bg-white"
-                />
-              </div>
+              <form onSubmit={handleCreateTeam} className="flex flex-col gap-4">
+                <div>
+                  <label className="mb-1 block text-xs font-extrabold uppercase tracking-wider text-[#0E1330]">
+                    Team Name <span className="text-rose-600">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Design & Product"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full rounded-xl border-2 border-[#0E1330] bg-[#F4F6FF] p-3 text-sm font-semibold text-[#0E1330] placeholder-slate-400 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#2A3BFF]"
+                  />
+                </div>
 
-              <button
-                type="submit"
-                disabled={creating}
-                className="mt-1 rounded bg-[#0052CC] py-2 text-xs font-semibold text-white hover:bg-[#0747A6] disabled:bg-[#0052CC]/50"
-              >
-                {creating ? "Creating..." : "Create Team"}
-              </button>
-            </form>
+                <div>
+                  <label className="mb-1 block text-xs font-extrabold uppercase tracking-wider text-[#0E1330]">
+                    Description
+                  </label>
+                  <textarea
+                    placeholder="What does this team focus on?"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={4}
+                    className="w-full resize-none rounded-xl border-2 border-[#0E1330] bg-[#F4F6FF] p-3 text-sm font-semibold text-[#0E1330] placeholder-slate-400 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-[#2A3BFF]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={creating}
+                  className="mt-2 w-full rounded-xl border-2 border-[#0E1330] bg-[#CBFF4D] py-3 text-sm font-extrabold text-[#0E1330] shadow-[4px_4px_0_#0E1330] transition-all hover:bg-[#d9ff7a] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0_#0E1330] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {creating ? "Creating..." : "Create Team"}
+                </button>
+              </form>
+
+              {/* Helper Pro Tip Box */}
+              <div className="mt-6 rounded-xl border-2 border-[#0E1330]/20 bg-[#F4F6FF] p-4 text-xs font-medium text-slate-600">
+                💡 <span className="font-extrabold text-[#0E1330]">Pro Tip:</span> Creating a team allows you to invite teammates by email and isolate project taskboards.
+              </div>
+            </div>
           </section>
 
-          {/* Teams List */}
-          <section className="md:col-span-2">
-            <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-[#5E6C84]">
-              Your Teams ({teams.length})
-            </h2>
+          {/* Right Side: Search & Team Roster Grid */}
+          <section className="lg:col-span-8">
+            {/* Search Header Bar */}
+            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-display text-2xl font-extrabold text-[#0E1330]">
+                  Your Teams
+                </h2>
+                <p className="text-xs font-semibold text-slate-500">
+                  Select a team to view active projects and real-time chat.
+                </p>
+              </div>
+
+              {/* Instant Search Bar */}
+              <div className="relative w-full sm:w-64">
+                <input
+                  type="text"
+                  placeholder="Search teams..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full rounded-xl border-2 border-[#0E1330] bg-white px-3 py-2 pr-8 text-xs font-bold text-[#0E1330] placeholder-slate-400 outline-none shadow-[3px_3px_0_#0E1330] focus:ring-2 focus:ring-[#2A3BFF]"
+                />
+                <span className="absolute right-3 top-2.5 text-xs text-slate-400">🔍</span>
+              </div>
+            </div>
 
             {loading && (
-              <p className="text-xs text-[#5E6C84]">Loading teams...</p>
-            )}
-
-            {!loading && teams.length === 0 && (
-              <div className="rounded-md border border-[#DFE1E6] bg-white p-8 text-center text-sm text-[#5E6C84]">
-                You are not in any teams yet. Create one to get started.
+              <div className="rounded-2xl border-2 border-[#0E1330] bg-white p-8 text-center shadow-[6px_6px_0_#0E1330]">
+                <p className="font-display text-base font-extrabold text-[#0E1330] animate-pulse">
+                  Loading team roster...
+                </p>
               </div>
             )}
 
-            <div className="flex flex-col gap-2">
-              {teams.map((team) => (
+            {!loading && filteredTeams.length === 0 && (
+              <div className="rounded-2xl border-2 border-[#0E1330] bg-white p-12 text-center shadow-[6px_6px_0_#0E1330]">
+                <p className="font-display text-lg font-extrabold text-[#0E1330]">
+                  {searchQuery ? "No matching teams found" : "No teams created yet"}
+                </p>
+                <p className="mt-1 text-xs font-bold text-slate-500">
+                  {searchQuery ? "Try searching for a different keyword." : "Use the form on the left to spin up your first workspace."}
+                </p>
+              </div>
+            )}
+
+            {/* Team Cards Grid */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {filteredTeams.map((team) => (
                 <Link
                   key={team.id}
                   to={`/teams/${team.id}`}
-                  className="group flex flex-col justify-between rounded-md border border-[#DFE1E6] bg-white p-4 transition-colors hover:border-[#4C9AFF] hover:bg-[#FAFBFC] sm:flex-row sm:items-center"
+                  className="group relative flex flex-col justify-between rounded-2xl border-2 border-[#0E1330] bg-white p-5 shadow-[5px_5px_0_#0E1330] transition-all hover:-translate-y-1 hover:shadow-[8px_8px_0_#0E1330] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
                 >
-                  <div className="flex items-start gap-3">
-                    {/* Minimalist Flat Icon Badge */}
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded bg-[#DEEBFF] text-xs font-bold text-[#0052CC]">
-                      {team.name.slice(0, 2).toUpperCase()}
+                  <div>
+                    <div className="flex items-center justify-between">
+                      {/* Visual Neo Badge Icon */}
+                      <div className="flex h-12 w-12 items-center justify-center rounded-xl border-2 border-[#0E1330] bg-[#CBFF4D] font-display text-lg font-extrabold text-[#0E1330] shadow-[2px_2px_0_#0E1330]">
+                        {team.name.slice(0, 2).toUpperCase()}
+                      </div>
+
+                      {/* Role Pill */}
+                      <span
+                        className={`rounded-md border border-[#0E1330] px-2.5 py-1 font-display text-[10px] font-extrabold uppercase tracking-wider ${
+                          team.role === "OWNER"
+                            ? "bg-[#2A3BFF] text-white"
+                            : "bg-[#F4F6FF] text-[#0E1330]"
+                        }`}
+                      >
+                        {team.role}
+                      </span>
                     </div>
 
-                    <div>
-                      <h3 className="text-sm font-semibold text-[#172B4D] group-hover:text-[#0052CC]">
-                        {team.name}
-                      </h3>
-                      {team.description ? (
-                        <p className="mt-0.5 text-xs text-[#5E6C84]">
-                          {team.description}
-                        </p>
-                      ) : (
-                        <p className="mt-0.5 text-xs italic text-[#A5ADBA]">
-                          No description
-                        </p>
-                      )}
-                    </div>
+                    <h3 className="font-display mt-4 text-xl font-extrabold text-[#0E1330] group-hover:text-[#2A3BFF]">
+                      {team.name}
+                    </h3>
+
+                    <p className="mt-1 text-xs font-medium text-slate-600 line-clamp-2 min-h-[32px]">
+                      {team.description || <span className="italic text-slate-400">No description provided</span>}
+                    </p>
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between gap-3 sm:mt-0">
-                    <span
-                      className={`rounded px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
-                        team.role === "OWNER"
-                          ? "bg-[#DEEBFF] text-[#0052CC]"
-                          : "bg-[#EBECF0] text-[#42526E]"
-                      }`}
-                    >
-                      {team.role}
+                  <div className="mt-6 flex items-center justify-between border-t-2 border-[#0E1330]/10 pt-3">
+                    <span className="text-xs font-extrabold text-slate-500">
+                      View projects & chat
                     </span>
-
-                    <span className="text-xs text-[#5E6C84] group-hover:text-[#0052CC]">
-                      &rarr;
+                    <span className="font-display text-base font-extrabold text-[#0E1330] transition-transform group-hover:translate-x-1 group-hover:text-[#2A3BFF]">
+                      →
                     </span>
                   </div>
                 </Link>
